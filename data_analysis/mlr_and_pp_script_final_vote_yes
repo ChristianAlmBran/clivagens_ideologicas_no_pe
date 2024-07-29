@@ -17,9 +17,7 @@ legislative_mlr <- df_mlr %>%
 ## removing old df
 rm(df_mlr)
 
-
 # Sample
-
 
 # Set a seed for reproducibility
 set.seed(123)
