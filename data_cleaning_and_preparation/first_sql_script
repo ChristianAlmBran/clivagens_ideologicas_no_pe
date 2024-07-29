@@ -1,0 +1,62 @@
+-- Renaming columns names so both dfs have a commom column
+ALTER TABLE ep7_rcvs_sql RENAME COLUMN variable TO vote_id;
+ALTER TABLE ep8_rcvs_sql RENAME COLUMN variable TO vote_id;
+ALTER TABLE ep9_rcvs_sql RENAME COLUMN variable TO vote_id;
+
+-- Creating the new tables, since SQLite doesnt support dropdown
+
+CREATE TABLE ep7_voted_sql_new (
+    vote_id INTEGER,
+    procedure VARCHAR,
+    leg/non-leg/bud VARCHAR,
+    final_vote INTEGER, 
+    environment_only VARCHAR, 
+    parliamentary_term VARCHAR
+);
+CREATE TABLE ep8_voted_sql_new (
+    vote_id INTEGER,
+    procedure VARCHAR,
+    leg/non-leg/bud VARCHAR,
+    final_vote INTEGER, 
+    environment_only VARCHAR, 
+    parliamentary_term VARCHAR
+);
+CREATE TABLE ep9_voted_sql_new (
+    vote_id INTEGER,
+    procedure VARCHAR,
+    leg/non-leg/bud VARCHAR,
+    final_vote INTEGER, 
+    environment_only VARCHAR, 
+    parliamentary_term VARCHAR
+);
+
+-- Coping data from the original tables to the new tables
+
+INSERT INTO ep7_voted_sql_new (vote_id, procedure, leg/non-leg/bud, final_vote, environment_only, parliamentary_term)
+SELECT vote_id, procedure, leg/non-leg/bud, final_vote, environment_only, parliamentary_term
+FROM ep7_voted_sql; 
+
+INSERT INTO ep8_voted_sql_new (vote_id, procedure, leg/non-leg/bud, final_vote, environment_only, parliamentary_term)
+SELECT vote_id, procedure, leg/non-leg/bud, final_vote, environment_only, parliamentary_term
+FROM ep8_voted_sql;
+
+INSERT INTO ep9_voted_sql_new (vote_id, procedure, leg/non-leg/bud, final_vote, environment_only, parliamentary_term)
+SELECT vote_id, procedure, leg/non-leg/bud, final_vote, environment_only, parliamentary_term
+FROM ep9_voted_sql;
+
+-- Creating new tables with the joined information
+
+CREATE TABLE joined_ep7 AS
+SELECT *
+FROM ep7_rcvs_sql
+JOIN ep7_voted_sql_new ON ep7_rcvs_sql.vote_id = ep7_voted_sql_new.vote_id;
+
+CREATE TABLE joined_ep8 AS
+SELECT *
+FROM ep8_rcvs_sql
+JOIN ep8_voted_sql_new ON ep8_rcvs_sql.vote_id = ep8_voted_sql_new.vote_id;
+
+CREATE TABLE joined_ep9 AS
+SELECT *
+FROM ep9_rcvs_sql
+JOIN ep9_voted_sql_new ON ep9_rcvs_sql.vote_id = ep9_voted_sql_new.vote_id;
