@@ -1,0 +1,142 @@
+# Loading the new data frames
+joined_ep7 <- read.csv("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\joined_ep7.csv")
+
+joined_ep8 <- read.csv("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\joined_ep8.csv")
+
+joined_ep9 <- read.csv("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\joined_ep9.csv")
+
+# Filtering for votes for or against
+joined_ep7 <- joined_ep7 %>%
+  filter(value == 1 | value == 2)
+
+joined_ep8 <- joined_ep8 %>%
+  filter(value == 1 | value == 2)
+
+joined_ep9 <- joined_ep9 %>%
+  filter(value == 1 | value == 2)
+
+# Changing against votes from 2 to 0 for the binomial regression
+## yes = 1; no = 0
+joined_ep7 <- joined_ep7 %>%
+  mutate(value = ifelse(value == 2, 0, value))
+
+joined_ep8 <- joined_ep8 %>%
+  mutate(value = ifelse(value == 2, 0, value))
+
+joined_ep9 <- joined_ep9 %>%
+  mutate(value = ifelse(value == 2, 0, value))
+
+joined_ep7_change <- joined_ep7 %>%
+  rename(vote = value)
+
+# Creating new dfs to preserve the old ones
+joined_ep7_inverted <- joined_ep7
+joined_ep8_inverted <- joined_ep8
+joined_ep9_inverted <- joined_ep9
+
+# EP7
+## Fitting the logistic regression models for each vote
+vote_models <- lapply(unique(joined_ep7_inverted$vote_id), function(vote) {
+  subset_data <- subset(joined_ep7_inverted, vote_id == vote)
+  model <- glm(value ~ lrgen + galtan + eu_position, data = subset_data, family = binomial)
+  return(model)
+})
+
+## Extracting coefficients and determine directions
+coefs <- lapply(vote_models, function(model) {
+  coef_direction <- sapply(model$coefficients, function(coef) {
+    ifelse(coef > 0, 1, 0)
+  })
+  return(coef_direction)
+})
+
+## Creating new columns with directions
+joined_ep7_inverted$direction_lrgen <- rep(NA, nrow(joined_ep7_inverted))
+joined_ep7_inverted$direction_galtan <- rep(NA, nrow(joined_ep7_inverted))
+joined_ep7_inverted$direction_eu_position <- rep(NA, nrow(joined_ep7_inverted))
+
+for (i in 1:length(vote_models)) {
+  vote <- unique(joined_ep7_inverted$vote_id)[i]
+  joined_ep7_inverted[joined_ep7_inverted$vote_id == vote, "direction_lrgen"] <- coefs[[i]]["lrgen"]
+  joined_ep7_inverted[joined_ep7_inverted$vote_id == vote, "direction_galtan"] <- coefs[[i]]["galtan"]
+  joined_ep7_inverted[joined_ep7_inverted$vote_id == vote, "direction_eu_position"] <- coefs[[i]]["eu_position"]
+}
+
+# EP8
+## Fitting the logistic regression models for each vote
+vote_models <- lapply(unique(joined_ep8_inverted$vote_id), function(vote) {
+  subset_data <- subset(joined_ep8_inverted, vote_id == vote)
+  model <- glm(value ~ lrgen + galtan + eu_position, data = subset_data, family = binomial)
+  return(model)
+})
+
+## Extracting coefficients and determine directions
+coefs <- lapply(vote_models, function(model) {
+  coef_direction <- sapply(model$coefficients, function(coef) {
+    ifelse(coef > 0, 1, 0)
+  })
+  return(coef_direction)
+})
+
+## Creating new columns with directions
+joined_ep8_inverted$direction_lrgen <- rep(NA, nrow(joined_ep8_inverted))
+joined_ep8_inverted$direction_galtan <- rep(NA, nrow(joined_ep8_inverted))
+joined_ep8_inverted$direction_eu_position <- rep(NA, nrow(joined_ep8_inverted))
+
+for (i in 1:length(vote_models)) {
+  vote <- unique(joined_ep8_inverted$vote_id)[i]
+  joined_ep8_inverted[joined_ep8_inverted$vote_id == vote, "direction_lrgen"] <- coefs[[i]]["lrgen"]
+  joined_ep8_inverted[joined_ep8_inverted$vote_id == vote, "direction_galtan"] <- coefs[[i]]["galtan"]
+  joined_ep8_inverted[joined_ep8_inverted$vote_id == vote, "direction_eu_position"] <- coefs[[i]]["eu_position"]
+}
+
+# EP9
+## Fitting the logistic regression models for each vote
+vote_models <- lapply(unique(joined_ep9_inverted$vote_id), function(vote) {
+  subset_data <- subset(joined_ep9_inverted, vote_id == vote)
+  model <- glm(value ~ lrgen + galtan + eu_position, data = subset_data, family = binomial)
+  return(model)
+})
+
+## Extracting coefficients and determine directions
+coefs <- lapply(vote_models, function(model) {
+  coef_direction <- sapply(model$coefficients, function(coef) {
+    ifelse(coef > 0, 1, 0)
+  })
+  return(coef_direction)
+})
+
+## Creating new columns with directions
+joined_ep9_inverted$direction_lrgen <- rep(NA, nrow(joined_ep9_inverted))
+joined_ep9_inverted$direction_galtan <- rep(NA, nrow(joined_ep9_inverted))
+joined_ep9_inverted$direction_eu_position <- rep(NA, nrow(joined_ep9_inverted))
+
+for (i in 1:length(vote_models)) {
+  vote <- unique(joined_ep9_inverted$vote_id)[i]
+  joined_ep9_inverted[joined_ep9_inverted$vote_id == vote, "direction_lrgen"] <- coefs[[i]]["lrgen"]
+  joined_ep9_inverted[joined_ep9_inverted$vote_id == vote, "direction_galtan"] <- coefs[[i]]["galtan"]
+  joined_ep9_inverted[joined_ep9_inverted$vote_id == vote, "direction_eu_position"] <- coefs[[i]]["eu_position"]
+}
+
+# Adding the inverted columns
+# EP7
+## Copying the df
+ep7_inverted_mod <- joined_ep7_inverted
+
+## Adding three empty columns in ep7_inverted_mod
+ep7_inverted_mod$true_vote_lrgen <- rep(NA, nrow(ep7_inverted_mod))
+ep7_inverted_mod$true_vote_galtan <- rep(NA, nrow(ep7_inverted_mod))
+ep7_inverted_mod$true_vote_eu_position <- rep(NA, nrow(ep7_inverted_mod))
+
+## Creating the loop
+for (i in 1:nrow(ep7_inverted_mod)) {
+  if (ep7_inverted_mod$value[i] == 1 & ep7_inverted_mod$direction_lrgen[i] == 0) {
+    ep7_inverted_mod$true_vote_lrgen[i] <- 0
+  } else if (ep7_inverted_mod$value[i] == 0 & ep7_inverted_mod$direction_lrgen[i] == 0) {
+    ep7_inverted_mod$true_vote_lrgen[i] <- 1
+  } else if (ep7_inverted_mod$value[i] == 0 & ep7_inverted_mod$direction_lrgen[i] == 1) {
+    ep7_inverted_mod$true_vote_lrgen[i] <- 0
+  } else if (ep7_inverted_mod$value[i] == 1 & ep7_inverted_mod$direction_lrgen[i] == 1) {
+    ep7_inverted_mod$true_vote_lrgen[i] <- 1
+  }
+}
