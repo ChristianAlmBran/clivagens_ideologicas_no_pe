@@ -1,0 +1,53 @@
+# Loading the new data frames
+ep7_inverted_true <- read.csv('ep7_inverted_true.csv', quote = "\"")
+ep8_inverted_true <- read.csv('ep8_inverted_true.csv', quote = "\"")
+ep9_inverted_true <- read.csv('ep9_inverted_true.csv', quote = "\"")
+
+# Correcting so that every NA, blank spaces, and no in the environment_only column in the dfs is 
+#turned into 0s, and the yes into 1s
+ep7_inverted_true$environment_only[is.na(ep7_inverted_true$environment_only)] <- 0
+ep7_inverted_true$environment_only[ep7_inverted_true$environment_only == ''] <- 0
+ep7_inverted_true$environment_only[ep7_inverted_true$environment_only == 'no'] <- 0
+ep7_inverted_true$environment_only[ep7_inverted_true$environment_only == 'yes'] <- 1
+
+ep8_inverted_true$environment_only[is.na(ep8_inverted_true$environment_only)] <- 0
+ep8_inverted_true$environment_only[ep8_inverted_true$environment_only == ''] <- 0
+ep8_inverted_true$environment_only[ep8_inverted_true$environment_only == 'no'] <- 0
+ep8_inverted_true$environment_only[ep8_inverted_true$environment_only == 'yes'] <- 1
+
+ep9_inverted_true$environment_only[is.na(ep9_inverted_true$environment_only)] <- 0
+ep9_inverted_true$environment_only[ep9_inverted_true$environment_only == ''] <- 0
+ep9_inverted_true$environment_only[ep9_inverted_true$environment_only == 'no'] <- 0
+ep9_inverted_true$environment_only[ep9_inverted_true$environment_only == 'yes'] <- 1
+
+# Selecting the columns of interest
+ep7_mlr <- ep7_inverted_true %>%
+  select(webiste_ep_id, eu_position, lrgen, galtan, parliamentary_term, vote_id, procedure, leg.non.leg.bud, final_vote, environment_only, true_vote_lrgen, true_vote_galtan, true_vote_eu_position)
+
+ep8_mlr <- ep8_inverted_true %>%
+  select(webiste_ep_id, eu_position, lrgen, galtan, parliamentary_term, vote_id, procedure, leg.non.leg.bud, final_vote, environment_only, true_vote_lrgen, true_vote_galtan, true_vote_eu_position)
+
+ep9_mlr <- ep9_inverted_true %>%
+  select(webiste_ep_id, eu_position, lrgen, galtan, parliamentary_term, vote_id, procedure, leg.non.leg.bud, final_vote, environment_only, true_vote_lrgen, true_vote_galtan, true_vote_eu_position)
+
+# Merging the dfs
+df_mlr <- bind_rows(ep7_mlr, ep8_mlr, ep9_mlr, id = NULL)
+
+# Merging some categories in the procedure column and introducing NAs
+df_mlr$procedure[df_mlr$procedure == "*"] <- NA
+df_mlr$procedure[df_mlr$procedure == "***"] <- NA
+df_mlr$procedure[df_mlr$procedure == "***I"] <- "first_reading"
+df_mlr$procedure[df_mlr$procedure == "�***I"] <- "first_reading"
+df_mlr$procedure[df_mlr$procedure == "***III"] <- "late_reading"
+df_mlr$procedure[df_mlr$procedure == "***II"] <- "late_reading"
+
+# Fixing database mistake
+df_mlr$leg.non.leg.bud[df_mlr$leg.non.leg.bud == "Bug"] <- "Bud"
+
+# Filtering observations with 2, since the only options are 0 and 1 (database error)
+df_mlr <- df_mlr %>%
+  filter(final_vote == 1 | final_vote == 0 | is.na(final_vote))
+
+# Creating unique identifiers for combinations of MEP and Vote
+df_mlr$vote_id_unique <- paste(df_mlr$parliamentary_term, df_mlr$vote_id, sep = "_")
+df_mlr$mep_unique <- paste(df_mlr$parliamentary_term, df_mlr$webiste_ep_id, sep = "_")
