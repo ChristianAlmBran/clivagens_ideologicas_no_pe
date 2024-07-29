@@ -1,0 +1,244 @@
+-- Creating the new tables to preserve the old ones
+CREATE TABLE ep7_inverted_true (
+    webiste_ep_id INTEGER,
+    full_name VARCHAR,
+    country VARCHAR,
+    party VARCHAR,
+    party_id INTEGER, 
+    eu_position REAL, 
+    lrgen REAL, 
+    galtan REAL, 
+    epg VARCHAR, 
+    start VARCHAR,
+    end VARCHAR,
+    parliamentary_term VARCHAR,
+    vote_id INTEGER,
+    value INTEGER,  
+    procedure VARCHAR,
+    leg.non.leg.bud VARCHAR,
+    final_vote VARCHAR, 
+    environment_only VARCHAR,
+    direction_lrgen INTEGER, 
+    direction_galtan INTEGER, 
+    direction_eu_position INTEGER
+);
+
+CREATE TABLE ep8_inverted_true (
+    webiste_ep_id INTEGER,
+    full_name VARCHAR,
+    country VARCHAR,
+    party VARCHAR,
+    party_id INTEGER, 
+    eu_position REAL, 
+    lrgen REAL, 
+    galtan REAL, 
+    epg VARCHAR, 
+    start VARCHAR,
+    end VARCHAR,
+    parliamentary_term VARCHAR,
+    vote_id INTEGER,
+    value INTEGER,  
+    procedure VARCHAR,
+    leg.non.leg.bud VARCHAR,
+    final_vote VARCHAR, 
+    environment_only VARCHAR,
+    direction_lrgen INTEGER, 
+    direction_galtan INTEGER, 
+    direction_eu_position INTEGER
+);
+
+CREATE TABLE ep9_inverted_true (
+    webiste_ep_id INTEGER,
+    full_name VARCHAR,
+    country VARCHAR,
+    party VARCHAR,
+    party_id INTEGER, 
+    eu_position REAL, 
+    lrgen REAL, 
+    galtan REAL, 
+    epg VARCHAR, 
+    start VARCHAR,
+    end VARCHAR,
+    parliamentary_term VARCHAR,
+    vote_id INTEGER,
+    value INTEGER,  
+    procedure VARCHAR,
+    leg.non.leg.bud VARCHAR,
+    final_vote VARCHAR, 
+    environment_only VARCHAR,
+    direction_lrgen INTEGER, 
+    direction_galtan INTEGER, 
+    direction_eu_position INTEGER
+);
+
+-- Coping data from the original tables to the new tables
+INSERT INTO ep7_inverted_true (webiste_ep_id, full_name, country, party, party_id, eu_position, lrgen, galtan,
+epg, start, end, parliamentary_term, vote_id, value, procedure, leg.non.leg.bud, final_vote, environment_only,
+direction_lrgen, direction_galtan, direction_eu_position)
+SELECT webiste_ep_id, full_name, country, party, party_id, eu_position, lrgen, galtan,
+epg, start, end, parliamentary_term, vote_id, value, procedure, leg.non.leg.bud, final_vote, environment_only,
+direction_lrgen, direction_galtan, direction_eu_position
+FROM joined_ep7_inverted;
+
+INSERT INTO ep8_inverted_true (webiste_ep_id, full_name, country, party, party_id, eu_position, lrgen, galtan,
+epg, start, end, parliamentary_term, vote_id, value, procedure, leg.non.leg.bud, final_vote, environment_only,
+direction_lrgen, direction_galtan, direction_eu_position)
+SELECT webiste_ep_id, full_name, country, party, party_id, eu_position, lrgen, galtan,
+epg, start, end, parliamentary_term, vote_id, value, procedure, leg.non.leg.bud, final_vote, environment_only,
+direction_lrgen, direction_galtan, direction_eu_position
+FROM joined_ep8_inverted;
+
+INSERT INTO ep9_inverted_true (webiste_ep_id, full_name, country, party, party_id, eu_position, lrgen, galtan,
+epg, start, end, parliamentary_term, vote_id, value, procedure, leg.non.leg.bud, final_vote, environment_only,
+direction_lrgen, direction_galtan, direction_eu_position)
+SELECT webiste_ep_id, full_name, country, party, party_id, eu_position, lrgen, galtan,
+epg, start, end, parliamentary_term, vote_id, value, procedure, leg.non.leg.bud, final_vote, environment_only,
+direction_lrgen, direction_galtan, direction_eu_position
+FROM joined_ep9_inverted;
+
+-- Testing to see if the CASE statment works
+SELECT
+  CASE
+    WHEN value = 1 AND direction_lrgen = 0 THEN 0
+    WHEN value = 0 AND direction_lrgen = 0 THEN 1
+    WHEN value = 0 AND direction_lrgen = 1 THEN 0
+    ELSE 1
+  END as true_vote_lrgen
+FROM ep7_inverted_true;
+
+-- Updating the df ep7
+ALTER TABLE ep7_inverted_true ADD COLUMN true_vote_lrgen INTEGER;
+
+UPDATE ep7_inverted_true
+SET true_vote_lrgen = (
+  CASE
+    WHEN value = 1 AND direction_lrgen = 0 THEN 0
+    WHEN value = 0 AND direction_lrgen = 0 THEN 1
+    WHEN value = 0 AND direction_lrgen = 1 THEN 0
+    ELSE 1
+  END
+);
+
+ALTER TABLE ep7_inverted_true ADD COLUMN true_vote_galtan INTEGER;
+
+UPDATE ep7_inverted_true
+SET true_vote_galtan = (
+  CASE
+    WHEN value = 1 AND direction_galtan = 0 THEN 0
+    WHEN value = 0 AND direction_galtan = 0 THEN 1
+    WHEN value = 0 AND direction_galtan = 1 THEN 0
+    ELSE 1
+  END
+);
+
+ALTER TABLE ep7_inverted_true ADD COLUMN true_vote_eu_position INTEGER;
+
+UPDATE ep7_inverted_true
+SET true_vote_eu_position = (
+  CASE
+    WHEN value = 1 AND direction_eu_position = 0 THEN 0
+    WHEN value = 0 AND direction_eu_position = 0 THEN 1
+    WHEN value = 0 AND direction_eu_position = 1 THEN 0
+    ELSE 1
+  END
+);
+
+
+--- updating the eu_position so that 1 becomes anti eu and 0 pro eu
+UPDATE ep7_inverted_true
+SET true_vote_eu_position = CASE
+    WHEN true_vote_eu_position = 1 THEN 0
+    ELSE 1
+END;
+
+-- Updating the df ep8
+ALTER TABLE ep8_inverted_true ADD COLUMN true_vote_lrgen INTEGER;
+
+UPDATE ep8_inverted_true
+SET true_vote_lrgen = (
+  CASE
+    WHEN value = 1 AND direction_lrgen = 0 THEN 0
+    WHEN value = 0 AND direction_lrgen = 0 THEN 1
+    WHEN value = 0 AND direction_lrgen = 1 THEN 0
+    ELSE 1
+  END
+);
+
+ALTER TABLE ep8_inverted_true ADD COLUMN true_vote_galtan INTEGER;
+
+UPDATE ep8_inverted_true
+SET true_vote_galtan = (
+  CASE
+    WHEN value = 1 AND direction_galtan = 0 THEN 0
+    WHEN value = 0 AND direction_galtan = 0 THEN 1
+    WHEN value = 0 AND direction_galtan = 1 THEN 0
+    ELSE 1
+  END
+);
+
+ALTER TABLE ep8_inverted_true ADD COLUMN true_vote_eu_position INTEGER;
+
+UPDATE ep8_inverted_true
+SET true_vote_eu_position = (
+  CASE
+    WHEN value = 1 AND direction_eu_position = 0 THEN 0
+    WHEN value = 0 AND direction_eu_position = 0 THEN 1
+    WHEN value = 0 AND direction_eu_position = 1 THEN 0
+    ELSE 1
+  END
+);
+
+--- updating the eu_position so that 1 becomes anti eu and 0 pro eu
+UPDATE ep8_inverted_true
+SET true_vote_eu_position = CASE
+    WHEN true_vote_eu_position = 1 THEN 0
+    ELSE 1
+END;
+
+-- Updating the df ep9
+ALTER TABLE ep9_inverted_true ADD COLUMN true_vote_lrgen INTEGER;
+
+UPDATE ep9_inverted_true
+SET true_vote_lrgen = (
+  CASE
+    WHEN value = 1 AND direction_lrgen = 0 THEN 0
+    WHEN value = 0 AND direction_lrgen = 0 THEN 1
+    WHEN value = 0 AND direction_lrgen = 1 THEN 0
+    ELSE 1
+  END
+);
+
+ALTER TABLE ep9_inverted_true ADD COLUMN true_vote_galtan INTEGER;
+
+UPDATE ep9_inverted_true
+SET true_vote_galtan = (
+  CASE
+    WHEN value = 1 AND direction_galtan = 0 THEN 0
+    WHEN value = 0 AND direction_galtan = 0 THEN 1
+    WHEN value = 0 AND direction_galtan = 1 THEN 0
+    ELSE 1
+  END
+);
+
+ALTER TABLE ep9_inverted_true ADD COLUMN true_vote_eu_position INTEGER;
+
+UPDATE ep9_inverted_true
+SET true_vote_eu_position = (
+  CASE
+    WHEN value = 1 AND direction_eu_position = 0 THEN 0
+    WHEN value = 0 AND direction_eu_position = 0 THEN 1
+    WHEN value = 0 AND direction_eu_position = 1 THEN 0
+    ELSE 1
+  END
+);
+
+
+--- updating the eu_position so that 1 becomes anti eu and 0 pro eu
+UPDATE ep9_inverted_true
+SET true_vote_eu_position = CASE
+    WHEN true_vote_eu_position = 1 THEN 0
+    ELSE 1
+END;
+
+SELECT *
+FROM ep7_inverted_true;
