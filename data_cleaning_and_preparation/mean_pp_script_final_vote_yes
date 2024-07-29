@@ -1,0 +1,823 @@
+# Define a function to calculate the mean of the lowest 25% and the highest 25%
+mean_quartiles <- function(x) {
+  sorted_x <- sort(x)
+  n <- length(sorted_x)
+  lower_25_mean <- mean(sorted_x[1:floor(n * 0.10)])
+  upper_25_mean <- mean(sorted_x[ceiling(n * 0.90):n])
+  return(c(lower_25_mean, upper_25_mean))
+}
+
+# Apply the function to galtan_cmc
+galtan_cmc_quartiles <- mean_quartiles(legislative_mlr_centered$galtan_cmc)
+
+# Define the extreme values for galtan_cmc (galtan_ep7_environment)
+galtan_ep7_environment_extreme_values <- data.frame(
+  galtan_cmc = galtan_cmc_quartiles,
+  parliamentary_term = "EP7", # or other relevant value
+  environment_only = "Environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = c(mean(legislative_mlr_centered$lrgen_cmc)),
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(galtan_glmmtmb, newdata = galtan_ep7_environment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(galtan_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+fixed_effects <- summary_glmmtmb$coefficients$cond
+se_galtan_cmc <- fixed_effects["galtan_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_galtan_cmc^2 + se_galtan_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Define the extreme values for galtan_cmc (galtan_ep8_environment)
+galtan_ep8_environment_extreme_values <- data.frame(
+  galtan_cmc = galtan_cmc_quartiles,
+  parliamentary_term = "EP8", # or other relevant value
+  environment_only = "Environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = c(mean(legislative_mlr_centered$lrgen_cmc)),
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(galtan_glmmtmb, newdata = galtan_ep8_environment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(fit)
+
+# Extract the fixed effects and their standard errors
+fixed_effects <- summary_glmmtmb$coefficients$cond
+se_galtan_cmc <- fixed_effects["galtan_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_galtan_cmc^2 + se_galtan_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Define the extreme values for galtan_cmc (galtan_ep9_environment)
+galtan_ep9_environment_extreme_values <- data.frame(
+  galtan_cmc = galtan_cmc_quartiles,
+  parliamentary_term = "EP9", # or other relevant value
+  environment_only = "Environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = c(mean(legislative_mlr_centered$lrgen_cmc)),
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(galtan_glmmtmb, newdata = galtan_ep9_environment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(fit)
+
+# Extract the fixed effects and their standard errors
+fixed_effects <- summary_glmmtmb$coefficients$cond
+se_galtan_cmc <- fixed_effects["galtan_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_galtan_cmc^2 + se_galtan_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Define the extreme values for galtan_cmc (galtan_ep7_nonenvironment)
+galtan_ep7_nonenvironment_extreme_values <- data.frame(
+  galtan_cmc = galtan_cmc_quartiles,
+  parliamentary_term = "EP7", # or other relevant value
+  environment_only = "Non-environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = c(mean(legislative_mlr_centered$lrgen_cmc)),
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(galtan_glmmtmb, newdata = galtan_ep7_nonenvironment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(galtan_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+fixed_effects <- summary_glmmtmb$coefficients$cond
+se_galtan_cmc <- fixed_effects["galtan_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_galtan_cmc^2 + se_galtan_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Define the extreme values for galtan_cmc (galtan_ep8_nonenvironment)
+galtan_ep8_nonenvironment_extreme_values <- data.frame(
+  galtan_cmc = galtan_cmc_quartiles,
+  parliamentary_term = "EP8", # or other relevant value
+  environment_only = "Non-environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = c(mean(legislative_mlr_centered$lrgen_cmc)),
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(galtan_glmmtmb, newdata = galtan_ep8_nonenvironment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(fit)
+
+# Extract the fixed effects and their standard errors
+fixed_effects <- summary_glmmtmb$coefficients$cond
+se_galtan_cmc <- fixed_effects["galtan_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_galtan_cmc^2 + se_galtan_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Define the extreme values for galtan_cmc (galtan_ep9_nonenvironment)
+galtan_ep9_nonenvironment_extreme_values <- data.frame(
+  galtan_cmc = galtan_cmc_quartiles,
+  parliamentary_term = "EP9", # or other relevant value
+  environment_only = "Non-environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = c(mean(legislative_mlr_centered$lrgen_cmc)),
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(galtan_glmmtmb, newdata = galtan_ep9_nonenvironment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(fit)
+
+# Extract the fixed effects and their standard errors
+fixed_effects <- summary_glmmtmb$coefficients$cond
+se_galtan_cmc <- fixed_effects["galtan_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_galtan_cmc^2 + se_galtan_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+
+
+# Define the extreme values for eu_position_cmc (eu_position_ep7_environment)
+eu_position_cmc_quartiles <- mean_quartiles(legislative_mlr_centered$eu_position_cmc)
+eu_position_ep7_environment_extreme_values <- data.frame(
+  eu_position_cmc = eu_position_cmc_quartiles,
+  parliamentary_term = "EP7", # or other relevant value
+  environment_only = "Environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = mean(legislative_mlr_centered$lrgen_cmc),
+  galtan_cmc = mean(legislative_mlr_centered$galtan_cmc)
+)
+
+# Generate predicted probabilities
+predictions <- predict(eu_position_glmmtmb, newdata = eu_position_ep7_environment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[1] - predictions[2]
+
+# Generate the summary
+summary_glmmtmb <- summary(eu_position_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+fixed_effects <- summary_glmmtmb$coefficients$cond
+se_eu_position_cmc <- fixed_effects["eu_position_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_eu_position_cmc^2 + se_eu_position_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Repeat the above process for other combinations (EP8, EP9, Non-environment)
+# Define the extreme values for eu_position_cmc (eu_position_ep8_environment)
+eu_position_ep8_environment_extreme_values <- data.frame(
+  eu_position_cmc = eu_position_cmc_quartiles,
+  parliamentary_term = "EP8", # or other relevant value
+  environment_only = "Environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = mean(legislative_mlr_centered$lrgen_cmc),
+  galtan_cmc = mean(legislative_mlr_centered$galtan_cmc)
+)
+
+# Generate predicted probabilities
+predictions <- predict(eu_position_glmmtmb, newdata = eu_position_ep8_environment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[1] - predictions[2]
+
+# Generate the summary
+summary_glmmtmb <- summary(eu_position_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+se_eu_position_cmc <- fixed_effects["eu_position_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_eu_position_cmc^2 + se_eu_position_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Define the extreme values for eu_position_cmc (eu_position_ep9_environment)
+eu_position_ep9_environment_extreme_values <- data.frame(
+  eu_position_cmc = eu_position_cmc_quartiles,
+  parliamentary_term = "EP9", # or other relevant value
+  environment_only = "Environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = mean(legislative_mlr_centered$lrgen_cmc),
+  galtan_cmc = mean(legislative_mlr_centered$galtan_cmc)
+)
+
+# Generate predicted probabilities
+predictions <- predict(eu_position_glmmtmb, newdata = eu_position_ep9_environment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[1] - predictions[2]
+
+# Generate the summary
+summary_glmmtmb <- summary(eu_position_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+se_eu_position_cmc <- fixed_effects["eu_position_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_eu_position_cmc^2 + se_eu_position_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Define the extreme values for eu_position_cmc (eu_position_ep7_nonenvironment)
+eu_position_ep7_nonenvironment_extreme_values <- data.frame(
+  eu_position_cmc = eu_position_cmc_quartiles,
+  parliamentary_term = "EP7", # or other relevant value
+  environment_only = "Non-environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = mean(legislative_mlr_centered$lrgen_cmc),
+  galtan_cmc = mean(legislative_mlr_centered$galtan_cmc)
+)
+
+# Generate predicted probabilities
+predictions <- predict(eu_position_glmmtmb, newdata = eu_position_ep7_nonenvironment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[1] - predictions[2]
+
+# Generate the summary
+summary_glmmtmb <- summary(eu_position_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+se_eu_position_cmc <- fixed_effects["eu_position_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_eu_position_cmc^2 + se_eu_position_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Define the extreme values for eu_position_cmc (eu_position_ep8_nonenvironment)
+eu_position_ep8_nonenvironment_extreme_values <- data.frame(
+  eu_position_cmc = eu_position_cmc_quartiles,
+  parliamentary_term = "EP8", # or other relevant value
+  environment_only = "Non-environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = mean(legislative_mlr_centered$lrgen_cmc),
+  galtan_cmc = mean(legislative_mlr_centered$galtan_cmc)
+)
+
+# Generate predicted probabilities
+predictions <- predict(eu_position_glmmtmb, newdata = eu_position_ep8_nonenvironment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[1] - predictions[2]
+
+# Generate the summary
+summary_glmmtmb <- summary(eu_position_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+se_eu_position_cmc <- fixed_effects["eu_position_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_eu_position_cmc^2 + se_eu_position_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Define the extreme values for eu_position_cmc (eu_position_ep9_nonenvironment)
+eu_position_ep9_nonenvironment_extreme_values <- data.frame(
+  eu_position_cmc = eu_position_cmc_quartiles,
+  parliamentary_term = "EP9", # or other relevant value
+  environment_only = "Non-environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  lrgen_cmc = mean(legislative_mlr_centered$lrgen_cmc),
+  galtan_cmc = mean(legislative_mlr_centered$galtan_cmc)
+)
+
+# Generate predicted probabilities
+predictions <- predict(eu_position_glmmtmb, newdata = eu_position_ep9_nonenvironment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[1] - predictions[2]
+
+# Generate the summary
+summary_glmmtmb <- summary(eu_position_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+se_eu_position_cmc <- fixed_effects["eu_position_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_eu_position_cmc^2 + se_eu_position_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+# Calculate quartile means for lrgen_cmc
+lrgen_cmc_quartiles <- mean_quartiles(legislative_mlr_centered$lrgen_cmc)
+
+# Define the values for lrgen_cmc (EP7, Environment)
+lrgen_ep7_environment_extreme_values <- data.frame(
+  lrgen_cmc = lrgen_cmc_quartiles,
+  parliamentary_term = "EP7", # or other relevant value
+  environment_only = "Environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc)),
+  galtan_cmc = c(mean(legislative_mlr_centered$galtan_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(lrgen_glmmtmb, newdata = lrgen_ep7_environment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(lrgen_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+fixed_effects <- summary_glmmtmb$coefficients$cond
+se_lrgen_cmc <- fixed_effects["lrgen_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_lrgen_cmc^2 + se_lrgen_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+
+# Define the values for lrgen_cmc (EP8, Environment)
+lrgen_ep8_environment_extreme_values <- data.frame(
+  lrgen_cmc = lrgen_cmc_quartiles,
+  parliamentary_term = "EP8", # or other relevant value
+  environment_only = "Environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc)),
+  galtan_cmc = c(mean(legislative_mlr_centered$galtan_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(lrgen_glmmtmb, newdata = lrgen_ep8_environment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(lrgen_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+se_lrgen_cmc <- fixed_effects["lrgen_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_lrgen_cmc^2 + se_lrgen_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+
+# Define the values for lrgen_cmc (EP9, Environment)
+lrgen_ep9_environment_extreme_values <- data.frame(
+  lrgen_cmc = lrgen_cmc_quartiles,
+  parliamentary_term = "EP9", # or other relevant value
+  environment_only = "Environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc)),
+  galtan_cmc = c(mean(legislative_mlr_centered$galtan_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(lrgen_glmmtmb, newdata = lrgen_ep9_environment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(lrgen_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+se_lrgen_cmc <- fixed_effects["lrgen_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_lrgen_cmc^2 + se_lrgen_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+
+# Define the values for lrgen_cmc (EP7, Non-environment)
+lrgen_ep7_nonenvironment_extreme_values <- data.frame(
+  lrgen_cmc = lrgen_cmc_quartiles,
+  parliamentary_term = "EP7", # or other relevant value
+  environment_only = "Non-environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc)),
+  galtan_cmc = c(mean(legislative_mlr_centered$galtan_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(lrgen_glmmtmb, newdata = lrgen_ep7_nonenvironment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(lrgen_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+se_lrgen_cmc <- fixed_effects["lrgen_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_lrgen_cmc^2 + se_lrgen_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+
+# Define the values for lrgen_cmc (EP8, Non-environment)
+lrgen_ep8_nonenvironment_extreme_values <- data.frame(
+  lrgen_cmc = lrgen_cmc_quartiles,
+  parliamentary_term = "EP8", # or other relevant value
+  environment_only = "Non-environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc)),
+  galtan_cmc = c(mean(legislative_mlr_centered$galtan_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(lrgen_glmmtmb, newdata = lrgen_ep8_nonenvironment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(lrgen_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+se_lrgen_cmc <- fixed_effects["lrgen_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_lrgen_cmc^2 + se_lrgen_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
+
+
+# Define the values for lrgen_cmc (EP9, Non-environment)
+lrgen_ep9_nonenvironment_extreme_values <- data.frame(
+  lrgen_cmc = lrgen_cmc_quartiles,
+  parliamentary_term = "EP9", # or other relevant value
+  environment_only = "Non-environment", # or other relevant value
+  procedure = "first_reading", # or other relevant value
+  final_vote = "Yes", # or other relevant value
+  mep_unique = NA, # setting random effects to zero
+  vote_id_unique = NA,
+  eu_position_cmc = c(mean(legislative_mlr_centered$eu_position_cmc)),
+  galtan_cmc = c(mean(legislative_mlr_centered$galtan_cmc))
+)
+
+# Generate predicted probabilities
+predictions <- predict(lrgen_glmmtmb, newdata = lrgen_ep9_nonenvironment_extreme_values, type = "response")
+
+# Calculate the difference in predicted probabilities
+diff_predicted_probs <- predictions[2] - predictions[1]
+
+# Generate the summary
+summary_glmmtmb <- summary(lrgen_glmmtmb)
+
+# Extract the fixed effects and their standard errors
+se_lrgen_cmc <- fixed_effects["lrgen_cmc", "Std. Error"]
+
+# Calculate the standard error of the difference
+se_diff <- sqrt(se_lrgen_cmc^2 + se_lrgen_cmc^2)
+
+# Calculate the z-score and p-value
+z_score <- diff_predicted_probs / se_diff
+p_value <- 2 * pnorm(-abs(z_score))
+
+# Calculate the 95% confidence interval
+z_critical <- 1.96  # 95% confidence level
+ci_lower <- diff_predicted_probs - z_critical * se_diff
+ci_upper <- diff_predicted_probs + z_critical * se_diff
+
+# Print the results
+cat("Difference in predicted probabilities:", diff_predicted_probs, "\n")
+cat("Standard error of the difference:", se_diff, "\n")
+cat("Z-score:", z_score, "\n")
+cat("P-value:", p_value, "\n")
+cat("95% Confidence Interval: [", ci_lower, ",", ci_upper, "]\n")
