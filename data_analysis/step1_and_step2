@@ -1,0 +1,348 @@
+# Loading packages
+pacman::p_load(tidyverse, lme4, brms)
+
+# Loading df
+df_mlr <- read.csv('df_mlr.csv')
+
+# Only keeping legislative votes 
+## copying the df and filtering
+legislative_mlr <- df_mlr %>%
+  filter(leg.non.leg.bud == 'legislative')
+#legislative_mlr <- df_mlr
+
+## removing old df
+rm(df_mlr)
+
+# Sample
+
+# Set a seed for reproducibility
+set.seed(123)
+
+# Step 1: Sample 120 groups (vote_id_unique)
+sampled_groups <- legislative_mlr %>%
+  distinct(vote_id_unique) %>%
+  sample_n(120)
+
+# Step 2: Filter the original dataframe to include only the sampled groups
+filtered_df <- legislative_mlr %>%
+  filter(vote_id_unique %in% sampled_groups$vote_id_unique)
+
+# Step 3: Sample 60 observations within each group
+sampled_df <- filtered_df %>%
+  group_by(vote_id_unique) %>%
+  sample_n(60) %>%
+  ungroup()
+
+# Display the sampled dataframe
+print(sampled_df)
+
+sampled_df %>%
+  count(vote_id_unique) %>%
+  summarize(mean_count = mean(n))
+
+sampled_df %>%
+  count(vote_id_unique) %>%
+  summarize(min_count = min(n))
+
+sampled_df %>%
+  count(vote_id_unique) %>%
+  summarize(max_count = max(n))
+
+sampled_df %>%
+  count(vote_id_unique) %>%
+  summarize(median_count = median(n))
+
+length(unique(sampled_df$vote_id_unique))
+
+# mlr
+
+# Converting necessary columns to appropriate types with lables and levels
+sampled_df$parliamentary_term <- factor(sampled_df$parliamentary_term, levels = c('EP7', 'EP8', 'EP9'), labels = c('EP7', 'EP8', 'EP9'))
+
+sampled_df$procedure <- factor(sampled_df$procedure, levels = c('first_reading', 'late_reading'), labels = c('first_reading', 'late_reading'))
+
+sampled_df$final_vote <- factor(sampled_df$final_vote, levels = c('No', 'Yes'), labels = c('No', 'Yes'))
+
+sampled_df$environment_only <- factor(sampled_df$environment_only, levels = c('Non-environment', 'Environment'), labels = c('Non-environment', 'Environment'))
+
+sampled_df$vote_id_unique <- factor(sampled_df$vote_id_unique)
+
+sampled_df$mep_unique <- factor(sampled_df$mep_unique)
+
+# Centering the predictors
+## Copying the df
+legislative_mlr_centered <- sampled_df
+
+## removing old df
+rm(legislative_mlr)
+
+# eu_position
+## Calculating the cluster-specific mean of eu_position
+cluster_mean_eu_position <- data.frame(tapply(legislative_mlr_centered$eu_position, legislative_mlr_centered$vote_id_unique, mean))
+
+## Adding cluster IDs as a new column
+cluster_mean_eu_position$id_cluster <- rownames(cluster_mean_eu_position)
+
+## Renaming the columns
+names(cluster_mean_eu_position) <- c('cluster_mean_eu_position', 'vote_id_unique')
+
+## Merging the cluster means with the original data
+legislative_mlr_centered <- merge(legislative_mlr_centered, cluster_mean_eu_position, by = 'vote_id_unique')
+
+## Creating the cluster-mean centered variable
+legislative_mlr_centered$eu_position_cmc <- legislative_mlr_centered$eu_position - legislative_mlr_centered$cluster_mean_eu_position
+
+# lrgen
+## Calculating the cluster-specific mean of lrgen
+cluster_mean_lrgen <- data.frame(tapply(legislative_mlr_centered$lrgen, legislative_mlr_centered$vote_id_unique, mean))
+
+## Adding cluster IDs as a new column
+cluster_mean_lrgen$id_cluster <- rownames(cluster_mean_lrgen)
+
+## Renaming the columns
+names(cluster_mean_lrgen) <- c('cluster_mean_lrgen', 'vote_id_unique')
+
+## Merging the cluster means with the original data
+legislative_mlr_centered <- merge(legislative_mlr_centered, cluster_mean_lrgen, by = 'vote_id_unique')
+
+## Creating the cluster-mean centered variable
+legislative_mlr_centered$lrgen_cmc <- legislative_mlr_centered$lrgen - legislative_mlr_centered$cluster_mean_lrgen
+
+# galtan
+## Calculating the cluster-specific mean of galtan
+cluster_mean_galtan <- data.frame(tapply(legislative_mlr_centered$galtan, legislative_mlr_centered$vote_id_unique, mean))
+
+## Adding cluster IDs as a new column
+cluster_mean_galtan$id_cluster <- rownames(cluster_mean_galtan)
+
+## Renaming the columns
+names(cluster_mean_galtan) <- c('cluster_mean_galtan', 'vote_id_unique')
+
+## Merging the cluster means with the original data
+legislative_mlr_centered <- merge(legislative_mlr_centered, cluster_mean_galtan, by = 'vote_id_unique')
+
+## Creating the cluster-mean centered variable
+legislative_mlr_centered$galtan_cmc <- legislative_mlr_centered$galtan - legislative_mlr_centered$cluster_mean_galtan
+
+# Step 1 - Building the empty model
+## Remember to create the sample df
+## eu_position
+model_empty_eu <- glmer(true_vote_eu_position ~ (1 | mep_unique) + (1 | vote_id_unique), data = legislative_mlr_centered, family = 'binomial')
+summary(model_empty_eu)
+var_eu_mep <- model_empty_eu@theta[1]^2
+var_eu_vote <- model_empty_eu@theta[2]^2
+icc_eu_vote <- var_eu_vote / (var_eu_mep + var_eu_vote + (3.14159^2/3))
+icc_eu_mep <- var_eu_mep / (var_eu_mep + var_eu_vote + (3.14159^2/3))
+
+## lrgen
+model_empty_lrgen <- glmer(true_vote_lrgen ~ (1 | mep_unique) + (1 | vote_id_unique), data = legislative_mlr_centered, family = 'binomial')
+summary(model_empty_lrgen)
+var_lrgen_mep <- model_empty_lrgen@theta[1]^2
+var_lrgen_vote <- model_empty_lrgen@theta[2]^2
+icc_lrgen_vote <- var_lrgen_vote / (var_lrgen_mep + var_lrgen_vote + (3.14159^2/3))
+icc_lrgen_mep <- var_lrgen_mep / (var_lrgen_mep + var_lrgen_vote + (3.14159^2/3))
+
+## galtan
+model_empty_galtan <- glmer(true_vote_galtan ~ (1 | mep_unique) + (1 | vote_id_unique), data = legislative_mlr_centered, family = 'binomial')
+summary(model_empty_galtan)
+var_galtan_mep <- model_empty_galtan@theta[1]^2
+var_galtan_vote <- model_empty_galtan@theta[2]^2
+icc_galtan_vote <- var_galtan_vote / (var_galtan_mep + var_galtan_vote + (3.14159^2/3))
+icc_galtan_mep <- var_galtan_mep / (var_galtan_mep + var_galtan_vote + (3.14159^2/3))
+
+# Step 2 - Building the intermediate models
+## Creating the formulas - CIM
+### eu_position
+formula_cim_eu <- true_vote_eu_position ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 | mep_unique) +
+  (1 | vote_id_unique)
+
+### lrgen
+formula_cim_lrgen <- true_vote_lrgen ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 | mep_unique) +
+  (1 | vote_id_unique)
+
+### galtan
+formula_cim_galtan <- true_vote_galtan ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 | mep_unique) +
+  (1 | vote_id_unique)
+
+## Running the constrained intermediate models (CIM)
+### eu_position
+cim_eu <- glmer(formula_cim_eu, data = legislative_mlr_centered, family = 'binomial')
+
+## lrgen
+cim_lrgen <- glmer(formula_cim_lrgen, data = legislative_mlr_centered, family = 'binomial')
+
+## galtan
+cim_galtan <- glmer(formula_cim_galtan, data = legislative_mlr_centered, family = 'binomial')
+
+## [Using controls to check the convergence] Running the constrained intermediate models (CIM)
+### eu_position
+cim_eu_control <- glmer(formula_cim_eu, data = legislative_mlr_centered, family = 'binomial', control = glmerControl(optimizer = "bobyqa"))
+
+## lrgen
+cim_lrgen_control <- glmer(formula_cim_lrgen, data = legislative_mlr_centered, family = 'binomial', control = glmerControl(optimizer = "bobyqa"))
+
+## galtan
+cim_galtan_control <- glmer(formula_cim_galtan, data = legislative_mlr_centered, family = 'binomial', control = glmerControl(optimizer = "bobyqa"))
+
+## Creating the formulas - AIM
+### eu_position
+formula_aim_eu_random_eu <- true_vote_eu_position ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 + eu_position_cmc || mep_unique) +
+  (1 | vote_id_unique)
+
+formula_aim_eu_random_lrgen <- true_vote_eu_position ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 + lrgen_cmc || mep_unique) +
+  (1 | vote_id_unique)
+
+formula_aim_eu_random_galtan <- true_vote_eu_position ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 + galtan_cmc || mep_unique) +
+  (1 | vote_id_unique)
+
+### lrgen
+formula_aim_lrgen_random_eu <- true_vote_lrgen ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 + eu_position_cmc || mep_unique) +
+  (1 | vote_id_unique)
+
+formula_aim_lrgen_random_lrgen <- true_vote_lrgen ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 + lrgen_cmc || mep_unique) +
+  (1 | vote_id_unique)
+
+formula_aim_lrgen_random_galtan <- true_vote_lrgen ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 + galtan_cmc || mep_unique) +
+  (1 | vote_id_unique)
+
+### galtan
+formula_aim_galtan_random_eu <- true_vote_galtan ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 + eu_position_cmc || mep_unique) +
+  (1 | vote_id_unique)
+
+formula_aim_galtan_random_lrgen <- true_vote_galtan ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 + lrgen_cmc || mep_unique) +
+  (1 | vote_id_unique)
+
+formula_aim_galtan_random_galtan <- true_vote_galtan ~ lrgen_cmc +
+  eu_position_cmc +
+  galtan_cmc +
+  parliamentary_term +
+  environment_only +
+  procedure +
+  final_vote +
+  (1 + galtan_cmc || mep_unique) +
+  (1 | vote_id_unique)
+
+## Running the augmented intermediate model (AIM)
+### eu_position
+aim_eu_random_eu <- glmer(formula_aim_eu_random_eu, data = legislative_mlr_centered, family = "binomial")
+aim_eu_random_lrgen <- glmer(formula_aim_eu_random_lrgen, data = legislative_mlr_centered, family = "binomial")
+aim_eu_random_galtan <- glmer(formula_aim_eu_random_galtan, data = legislative_mlr_centered, family = "binomial")
+
+### lrgen
+aim_lrgen_random_eu <- glmer(formula_aim_lrgen_random_eu, data = legislative_mlr_centered, family = "binomial")
+aim_lrgen_random_lrgen <- glmer(formula_aim_lrgen_random_lrgen, data = legislative_mlr_centered, family = "binomial")
+aim_lrgen_random_galtan <- glmer(formula_aim_lrgen_random_galtan, data = legislative_mlr_centered, family = "binomial")
+
+### galtan
+aim_galtan_random_eu <- glmer(formula_aim_galtan_random_eu, data = legislative_mlr_centered, family = "binomial")
+aim_galtan_random_lrgen <- glmer(formula_aim_galtan_random_lrgen, data = legislative_mlr_centered, family = "binomial")
+aim_galtan_random_galtan <- glmer(formula_aim_galtan_random_galtan, data = legislative_mlr_centered, family = "binomial")
+
+## [Using controls to check the convergence] Running the augmented intermediate model (AIM)
+### eu_position
+aim_eu_random_eu_control <- glmer(formula_aim_eu_random_eu, data = legislative_mlr_centered, family = "binomial", control = glmerControl(optimizer = "bobyqa"))
+aim_eu_random_lrgen_control <- glmer(formula_aim_eu_random_lrgen, data = legislative_mlr_centered, family = "binomial", control = glmerControl(optimizer = "bobyqa"))
+aim_eu_random_galtan_control <- glmer(formula_aim_eu_random_galtan, data = legislative_mlr_centered, family = "binomial", control = glmerControl(optimizer = "bobyqa"))
+
+### lrgen
+aim_lrgen_random_eu_control <- glmer(formula_aim_lrgen_random_eu, data = legislative_mlr_centered, family = "binomial", control = glmerControl(optimizer = "bobyqa"))
+aim_lrgen_random_lrgen_control <- glmer(formula_aim_lrgen_random_lrgen, data = legislative_mlr_centered, family = "binomial", control = glmerControl(optimizer = "bobyqa"))
+aim_lrgen_random_galtan_control <- glmer(formula_aim_lrgen_random_galtan, data = legislative_mlr_centered, family = "binomial", control = glmerControl(optimizer = "bobyqa"))
+
+### galtan
+aim_galtan_random_eu_control <- glmer(formula_aim_galtan_random_eu, data = legislative_mlr_centered, family = "binomial", control = glmerControl(optimizer = "bobyqa"))
+aim_galtan_random_lrgen_control <- glmer(formula_aim_galtan_random_lrgen, data = legislative_mlr_centered, family = "binomial", control = glmerControl(optimizer = "bobyqa"))
+aim_galtan_random_galtan_control <- glmer(formula_aim_galtan_random_galtan, data = legislative_mlr_centered, family = "binomial", control = glmerControl(optimizer = "bobyqa"))
+
+## Executing the likelihood ratio test
+### eu_position
+anova(cim_eu, aim_eu_random_eu)
+anova(cim_eu, aim_eu_random_lrgen)
+anova(cim_eu, aim_eu_random_galtan)
+
+### lrgen
+anova(cim_lrgen, aim_lrgen_random_eu)
+anova(cim_lrgen, aim_lrgen_random_lrgen)
+anova(cim_lrgen, aim_lrgen_random_galtan)
+
+### galtan
+anova(cim_galtan, aim_galtan_random_eu)
+anova(cim_galtan, aim_galtan_random_lrgen)
+anova(cim_galtan, aim_galtan_random_galtan)
