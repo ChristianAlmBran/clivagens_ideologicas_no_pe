@@ -1,0 +1,377 @@
+# Loading packages
+pacman::p_load(readxl, tidyverse, readxl)
+
+# Loading files
+## CHES
+ches_original <- read.csv("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\1999_2019_CHES_dataset.csv")
+
+## VoteWatch
+### EP7 - 2009-2014
+ep7_rcvs_original <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\VoteWatch_EP_voting_data_2004_2022\\EP7_RCVs_2014_06_19.xlsx")
+
+ep7_voted_original <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\VoteWatch_EP_voting_data_2004_2022\\EP7_Voted docs.xlsx")
+
+### EP8 - 2014-2019
+ep8_rcvs_original <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\VoteWatch_EP_voting_data_2004_2022\\EP8_RCVs_2019_06_25.xlsx")
+
+ep8_voted_original <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\VoteWatch_EP_voting_data_2004_2022\\EP8_Voted docs.xlsx")
+
+### EP9 - 2019-2022 (only covers half of the EP term)
+ep9_rcvs_original <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\VoteWatch_EP_voting_data_2004_2022\\EP9_RCVs_2022_06_22.xlsx")
+
+ep9_voted_original <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\VoteWatch_EP_voting_data_2004_2022\\EP9_Voted docs.xlsx")
+
+## National parties names and index
+nat_parties_index_original <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\national_party_names_index_2.xlsx")
+
+# CHES 
+## Selecting/Filtering columns/rows of interest
+ches_mod <- ches_original %>%
+  select(country, eumember, year, party_id, party, eu_position, lrgen, galtan)
+
+ches_mod <- ches_mod %>%
+  filter(year > 2006, eumember == 1)
+
+## EDA (Exploration Data Analysis)
+head(ches_mod)  
+
+str(ches_mod)
+
+ExpData(data=ches_mod,type=2)
+
+ExpNumStat(ches_mod,by="A",gp=NULL,Qnt=seq(0,1,0.1),MesofShape=2,Outlier=TRUE,round=2)
+
+# VoteWatch
+## EP 7
+### Selecting/Filtering columns/rows of interest
+ep7_rcvs_mod <- ep7_rcvs_original %>%
+  select(-Fname, -Lname)
+
+ep7_voted_mod <- ep7_voted_original %>%
+  select(-File, -`Order of vote`, -Date, -`O'clock`, -Title, -Rapporteur, -Code)
+
+### EDA (Exploration Data Analysis)
+head(ep7_rcvs_mod)  
+head(ep7_voted_mod)
+
+str(ep7_rcvs_mod)
+str(ep7_voted_mod)
+
+ExpData(data=ep7_rcvs_mod,type=2)
+ExpData(data=ep7_voted_mod,type=2)
+
+ExpNumStat(ep7_rcvs_mod,by="A",gp=NULL,Qnt=seq(0,1,0.1),MesofShape=2,Outlier=TRUE,round=2)
+ExpNumStat(ep7_voted_mod,by="A",gp=NULL,Qnt=seq(0,1,0.1),MesofShape=2,Outlier=TRUE,round=2)
+
+## EP 8 
+### Selecting/Filtering columns/rows of interest
+ep8_rcvs_mod <- ep8_rcvs_original %>%
+  select(-Activ)
+
+ep8_voted_mod <- ep8_voted_original %>%
+  select(-File, -`Order of vote`, -Date, -`O'clock`, -Title, -Title_Ro, -Title_Fr,
+         -Title_German, -Title_Polski, -Rapporteur, -Code, -Subject_ro, -Subject_fr,
+         -Subject_ger, -Subject_pl)
+
+## EP 9
+### Selecting/Filtering columns/rows of interest
+ep9_rcvs_mod <- ep9_rcvs_original %>%
+  select(-Activ)
+
+ep9_voted_mod <- ep9_voted_original %>%
+  select(-File, -`Order of vote`, -Date, -Title, -Rapporteur, -Code)
+
+# National parties names and index
+## Selecting/Filtering columns/rows of interest
+nat_parties_index_mod <- nat_parties_index_original %>%
+  select(Country, Party_ID, Party_Name)
+
+# Merging the national parties index with MEP info
+##EP7
+ep7_rcvs_mod <- ep7_rcvs_mod %>%
+  left_join(nat_parties_index_mod, by = c("Party" = "Party_Name"))
+
+### Rearrange the columns to place Party_ID next to Party
+ep7_rcvs_mod <- ep7_rcvs_mod %>%
+  select(`MEP ID`, FullName, Country.x, Party, Party_ID, everything())
+
+### Loading the new ep7_rcvs_mod df
+ep7_rcvs_mod_index <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\ep7_rcvs_mod_new.xlsx")
+
+##EP8
+ep8_rcvs_mod <- ep8_rcvs_mod %>%
+  left_join(nat_parties_index_mod, by = c("Party" = "Party_Name"))
+
+### Rearrange the columns to place Party_ID next to Party
+ep8_rcvs_mod <- ep8_rcvs_mod %>%
+  select(WebisteEpID, Fname, Lname, Country.x, Party, Party_ID, everything())
+
+### Loading the new ep8_rcvs_mod df
+ep8_rcvs_mod_index <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\ep8_rcvs_mod_new.xlsx")
+
+##EP9
+ep9_rcvs_mod <- ep9_rcvs_mod %>%
+  left_join(nat_parties_index_mod, by = c("Party" = "Party_Name"))
+
+### Rearrange the columns to place Party_ID next to Party
+ep9_rcvs_mod <- ep9_rcvs_mod %>%
+  select(WebisteEpID, Fname, Lname, Country.x, Party, Party_ID, everything())
+
+### Loading the new ep9_rcvs_mod df
+ep9_rcvs_mod_index <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\ep9_rcvs_mod_new.xlsx")
+
+# Adding information about the ideology of the national parties
+## Modify the CHES variable for the join
+### Filtering CHES by year
+ches_mod_2010 <- ches_mod %>%
+  filter(year == 2010)
+
+ches_mod_2014 <- ches_mod %>%
+  filter(year == 2014)
+
+ches_mod_2019 <- ches_mod %>%
+  filter(year == 2019)
+
+### Selecting columns of interest
+ches_mod_2010_join <- ches_mod_2010 %>%
+  select(party_id, eu_position, lrgen, galtan)
+
+ches_mod_2014_join <- ches_mod_2014 %>%
+  select(party_id, eu_position, lrgen, galtan)
+
+ches_mod_2019_join <- ches_mod_2019 %>%
+  select(party_id, eu_position, lrgen, galtan)
+
+##EP7
+### Joining with the ideologies
+ep7_rcvs_ideology <- ep7_rcvs_mod_index %>%
+  left_join(ches_mod_2010_join, by = c("Party_ID" = "party_id"))
+
+### Rearrange the columns to place the ideologies next to Party_ID
+ep7_rcvs_ideology <- ep7_rcvs_ideology %>%
+  select(`MEP ID`, FullName, Country, Party, Party_ID, eu_position, lrgen, galtan, everything()) %>%
+  subset(select = -Country.y)
+
+### Filtering rows with independents and non-CHES parties
+ep7_rcvs_ideology <- ep7_rcvs_ideology %>%
+  drop_na(Party_ID)
+
+### Exporting files to add on Excel the 2014 CHES information when the 2010 is missing, and excluding rows where there is no CHES information
+write.xlsx(ep7_rcvs_ideology, "ep7_rcvs_ideology.xlsx")
+write.xlsx(ches_mod_2014, "ches_mod_2014.xlsx")
+
+### Loading MEPs file
+ep7_rcvs_ideology_mod <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\ep7_rcvs_ideology_new.xlsx")
+
+##EP8
+### Joining with the ideologies
+ep8_rcvs_ideology <- ep8_rcvs_mod_index %>%
+  left_join(ches_mod_2014_join, by = c("Party_ID" = "party_id"))
+
+### Rearrange the columns to place the ideologies next to Party_ID
+ep8_rcvs_ideology <- ep8_rcvs_ideology %>%
+  select(WebisteEpID, Fname, Lname, FullName, Country, Party, Party_ID, eu_position, lrgen, galtan, everything()) %>%
+  subset(select = -Country.y)
+
+### Filtering rows with independents and non-CHES parties
+ep8_rcvs_ideology <- ep8_rcvs_ideology %>%
+  drop_na(Party_ID)
+
+### Exporting files to add on Excel the 2014 CHES information when the 2010 is missing, and excluding rows where there is no CHES information
+write.xlsx(ep8_rcvs_ideology, "ep8_rcvs_ideology.xlsx")
+write.xlsx(ches_mod_2019_join, "ches_mod_2019_join.xlsx")
+
+### Loading MEPs file
+ep8_rcvs_ideology_mod <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\ep8_rcvs_ideology_new.xlsx")
+
+##EP9
+### Joining with the ideologies
+ep9_rcvs_ideology <- ep9_rcvs_mod_index %>%
+  left_join(ches_mod_2019_join, by = c("Party_ID" = "party_id"))
+
+### Rearrange the columns to place the ideologies next to Party_ID
+ep9_rcvs_ideology <- ep9_rcvs_ideology %>%
+  select(WebisteEpID, Fname, Lname, FullName, Country, Party, Party_ID, eu_position, lrgen, galtan, everything()) %>%
+  subset(select = -Country.y)
+
+### Filtering rows with independents and non-CHES parties and parties without 2019 CHES information
+ep9_rcvs_ideology <- ep9_rcvs_ideology %>%
+  drop_na(Party_ID) %>%
+  drop_na(eu_position)
+
+### Exporting files to fix some mixed up party names
+write.xlsx(ep9_rcvs_ideology, "ep9_rcvs_ideology.xlsx")
+
+### Loading MEPs file
+ep9_rcvs_ideology_mod <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\ep9_rcvs_ideology_new.xlsx")
+
+# Filtering information on the voted dfs. I'm filtering for the policy area of Environment and public health. 
+# I will need to filter further manually to keep only environmentally related votes.
+## Filtering - Environmental and Public health
+
+ep7_voted_leg <- ep7_voted_mod %>%
+  filter(De == "Environment & public health")
+
+ep8_voted_leg <- ep8_voted_mod %>%
+  filter(`De/Policy area` == "Environment & public health")
+
+ep9_voted_leg <- ep9_voted_mod %>%
+  filter(`Policy area` == "Environment & public health")
+
+## Exporting the dfs to Excel, to create a new column and make the manual verification
+write.xlsx(ep7_voted_leg, "ep7_voted_leg.xlsx")
+
+write.xlsx(ep8_voted_leg, "ep8_voted_leg.xlsx")
+
+write.xlsx(ep9_voted_leg, "ep9_voted_leg.xlsx")
+
+## Loading edited dfs
+ep7_voted_leg_mod <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\ep7_voted_leg_new.xlsx")
+
+ep8_voted_leg_mod <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\ep8_voted_leg_new.xlsx")
+
+ep9_voted_leg_mod <- read_excel("C:\\Users\\Chrisbran\\Box Sync\\Phd\\Artigos\\Artigo - ABCP\\ep9_voted_leg_new.xlsx")
+
+# Joining to add the environmental_only column to the bigger dfs
+ep7_voted_join <- ep7_voted_mod %>%
+  left_join(ep7_voted_leg_mod)
+
+ep8_voted_join <- ep8_voted_mod %>%
+  left_join(ep8_voted_leg_mod)
+
+ep9_voted_join <- ep9_voted_mod %>%
+  left_join(ep9_voted_leg_mod)
+
+# Standardizing column names of dataframes
+## RCVS dfs
+### Changing a column to match the others
+ep7_rcvs_ideology_mod <- ep7_rcvs_ideology_mod %>%
+  rename(WebisteEpID = `MEP ID`)
+
+### Removing two unnecessary columns from the ep8 and ep9 dataframes
+ep8_rcvs_ideology_mod <- ep8_rcvs_ideology_mod %>%
+  select(-Fname, -Lname)
+
+ep9_rcvs_ideology_mod <- ep9_rcvs_ideology_mod %>%
+  select(-Fname, -Lname)
+
+### Leaving the names in lowercase
+ep7_rcvs_ideology_mod <- ep7_rcvs_ideology_mod %>%
+  rename_with(tolower)
+
+ep8_rcvs_ideology_mod <- ep8_rcvs_ideology_mod %>%
+  rename_with(tolower)
+
+ep9_rcvs_ideology_mod <- ep9_rcvs_ideology_mod %>%
+  rename_with(tolower)
+
+### Adding underscores to improve readability
+ep7_rcvs_ideology_mod <- ep7_rcvs_ideology_mod %>%
+  rename(webiste_ep_id = webisteepid, full_name = fullname)
+
+ep8_rcvs_ideology_mod <- ep8_rcvs_ideology_mod %>%
+  rename(webiste_ep_id = webisteepid, full_name = fullname)
+
+ep9_rcvs_ideology_mod <- ep9_rcvs_ideology_mod %>%
+  rename(webiste_ep_id = webisteepid, full_name = fullname)
+
+## Voted dfs
+### Removing unecessary columns
+ep7_voted_join <- ep7_voted_join %>%
+  select(-...26, -...27, -...28)
+
+### Changing columns to match the others
+ep7_voted_join <- ep7_voted_join %>%
+  rename(policy_area = De)
+
+ep8_voted_join <- ep8_voted_join %>%
+  rename(policy_area = `De/Policy area`)
+
+ep7_voted_join <- ep7_voted_join %>%
+  rename(yes = Yeas)
+
+ep8_voted_join <- ep8_voted_join %>%
+  rename(yes = Yeas)
+
+### Leaving the names in lowercase
+ep7_voted_join <- ep7_voted_join %>%
+  rename_with(tolower)
+
+ep8_voted_join <- ep8_voted_join %>%
+  rename_with(tolower)
+
+ep9_voted_join <- ep9_voted_join %>%
+  rename_with(tolower)
+
+### Adding underscores to improve readability, removing spaces and special characters
+ep7_voted_join <- ep7_voted_join %>%
+  rename(vote_id = `vote id`, type_of_vote = `type of vote`, voting_rule = `voting rule`, 
+         interinstitutional_file_number = `interinstitutional file number`, committee_responsabile = `committee responsabile`, 
+         final_vote = `final vote?`, am_no. = `am no.`)
+
+ep8_voted_join <- ep8_voted_join %>%
+  rename(vote_id = `vote id`, type_of_vote = `type of vote`, voting_rule = `voting rule`, 
+         interinstitutional_file_number = `interinstitutional file number`, committee_responsabile = `committee responsabile`,
+         am_no. = `am no.`)
+
+ep9_voted_join <- ep9_voted_join %>%
+  rename(vote_id = `vote id`, type_of_vote = `type of vote`, voting_rule = `voting rule`, 
+         interinstitutional_file_number = `interinstitutional file number`, committee_responsabile = `committee responsabile`, 
+         policy_area = `policy area`, final_vote = `final vote?`, am_no. = `am no.`)
+
+# Droping NAs
+ep7_rcvs_ideology_mod <- ep7_rcvs_ideology_mod %>%
+  drop_na()
+
+# Adding a column for he parliamentary terms
+ep7_rcvs_ideology_mod$parliamentary_term <- "EP7"
+
+ep7_voted_join$parliamentary_term <- "EP7"
+
+ep8_rcvs_ideology_mod$parliamentary_term <- "EP8"
+
+ep8_voted_join$parliamentary_term <- "EP8"
+
+ep9_rcvs_ideology_mod$parliamentary_term <- "EP9"
+
+ep9_voted_join$parliamentary_term <- "EP9"
+
+# Re-scaling the eu_position columns to make it comparable with the other ideologies
+ep7_rcvs_ideology_mod$eu_position <- (ep7_rcvs_ideology_mod$eu_position - 1) * (5 / 3)
+ep8_rcvs_ideology_mod$eu_position <- (ep8_rcvs_ideology_mod$eu_position - 1) * (5 / 3)
+ep9_rcvs_ideology_mod$eu_position <- (ep9_rcvs_ideology_mod$eu_position - 1) * (5 / 3)
+
+# Changing the rcvs data sets from wide format to long
+ep7_rcvs_ideology_long <- ep7_rcvs_ideology_mod %>%
+  pivot_longer(cols = matches("^\\d+$"), 
+               names_to = "variable", 
+               values_to = "value")
+
+ep8_rcvs_ideology_long <- ep8_rcvs_ideology_mod %>%
+  pivot_longer(cols = matches("^\\d+$"), 
+               names_to = "variable", 
+               values_to = "value")
+
+ep9_rcvs_ideology_long <- ep9_rcvs_ideology_mod %>%
+  pivot_longer(cols = matches("^\\d+$"), 
+               names_to = "variable", 
+               values_to = "value")
+
+# The next step is in SQL, so I need to export the dfs
+write.xlsx(ep7_voted_join, "ep7_voted_sql.xlsx")
+write.csv(ep7_voted_join, "ep7_voted_sql.csv", row.names = FALSE)
+
+write.xlsx(ep8_voted_join, "ep8_voted_sql.xlsx")
+write.csv(ep8_voted_join, "ep8_voted_sql.csv", row.names = FALSE)
+
+write.xlsx(ep9_voted_join, "ep9_voted_sql.xlsx")
+write.csv(ep9_voted_join, "ep9_voted_sql.csv", row.names = FALSE)
+
+write.xlsx(ep7_rcvs_ideology_long, "ep7_rcvs_sql.xlsx")
+write.csv(ep7_rcvs_ideology_long, "ep7_rcvs_sql.csv", row.names = FALSE)
+
+write.xlsx(ep8_rcvs_ideology_long, "ep8_rcvs_sql.xlsx")
+write.csv(ep8_rcvs_ideology_long, "ep8_rcvs_sql.csv", row.names = FALSE)
+
+write.xlsx(ep9_rcvs_ideology_long, "ep9_rcvs_sql.xlsx")
+write.csv(ep9_rcvs_ideology_long, "ep9_rcvs_sql.csv", row.names = FALSE)
