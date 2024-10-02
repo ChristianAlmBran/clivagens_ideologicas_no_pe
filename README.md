@@ -2,7 +2,7 @@
 
 #### Prof. Dr. Rodrigo Barros de Albuquerque - Universidade Federal de Sergipe.
 
-#### Me. Christian de Almeida Brandão - Universidade Federal de Pernambuco.
+#### Prof. Me. Christian de Almeida Brandão - Universidade Federal de Pernambuco.
 
 ## Instruções para reprodução.
 
