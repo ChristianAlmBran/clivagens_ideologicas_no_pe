@@ -8,7 +8,7 @@ df_mlr <- read.csv('df_mlr.csv')
 head(df_mlr)
 str(df_mlr)
 
-# Only keeping legislative and EP7 votes 
+# Only keeping legislative and EP8 votes 
 ## copying the df and filtering
 legislative_mlr <- df_mlr %>%
   filter(leg.non.leg.bud == 'legislative' & parliamentary_term == 'EP8')
