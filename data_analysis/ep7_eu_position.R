@@ -1,46 +1,41 @@
-pacman::p_load(brms, tidyverse, performance)
+# Loading the packages
+pacman::p_load(brms, tidyverse, performance, glmmTMB)
 
+# Loading the df
 df_mlr <- read.csv('df_mlr.csv')
 
 # Verifying the df
 head(df_mlr)
 str(df_mlr)
 
-# Only keeping legislative votes 
+# Only keeping legislative and EP7 votes 
 ## copying the df and filtering
 legislative_mlr <- df_mlr %>%
   filter(leg.non.leg.bud == 'legislative' & parliamentary_term == 'EP7')
-# IF YOU EXCLUDE ONLY THE PARLIAMENTARY TERM YOU DONT GET A MULTICOLINEARITY PROBLEM
-#legislative_mlr <- df_mlr
 
 ## removing old df
 rm(df_mlr)
 
-sampled_df <- legislative_mlr
 # mlr
-
 # Converting necessary columns to appropriate types with lables and levels
-sampled_df$procedure <- factor(sampled_df$procedure, levels = c('first_reading', 'late_reading'), labels = c('first_reading', 'late_reading'))
+legislative_mlr$procedure <- factor(legislative_mlr$procedure, levels = c('first_reading', 'late_reading'), labels = c('first_reading', 'late_reading'))
 
-sampled_df$final_vote <- factor(sampled_df$final_vote, levels = c('No', 'Yes'), labels = c('No', 'Yes'))
+legislative_mlr$final_vote <- factor(legislative_mlr$final_vote, levels = c('No', 'Yes'), labels = c('No', 'Yes'))
 
-sampled_df$environment_only <- factor(sampled_df$environment_only, levels = c('Non-environment', 'Environment'), labels = c('Non-environment', 'Environment'))
+legislative_mlr$environment_only <- factor(legislative_mlr$environment_only, levels = c('Non-environment', 'Environment'), labels = c('Non-environment', 'Environment'))
 
-sampled_df$vote_id_unique <- factor(sampled_df$vote_id_unique)
+legislative_mlr$vote_id_unique <- factor(legislative_mlr$vote_id_unique)
 
-sampled_df$mep_unique <- factor(sampled_df$mep_unique)
-
-#sampled_df$leg.non.leg.bud <- factor(sampled_df$leg.non.leg.bud, levels = c('budgetary', 'legislative', 'non_legislative'), labels = c('budgetary', 'legislative', 'non_legislative'))
+legislative_mlr$mep_unique <- factor(legislative_mlr$mep_unique)
 
 # Centering the predictors
 ## Copying the df
-legislative_mlr_centered <- sampled_df
+legislative_mlr_centered <- legislative_mlr
 
 ## removing old df
 rm(legislative_mlr)
 
 # eu_position
-
 ## Calculating the cluster-specific mean of eu_position
 cluster_mean_eu_position <- data.frame(tapply(legislative_mlr_centered$eu_position, legislative_mlr_centered$vote_id_unique, mean))
 
@@ -57,7 +52,6 @@ legislative_mlr_centered <- merge(legislative_mlr_centered, cluster_mean_eu_posi
 legislative_mlr_centered$eu_position_cmc <- legislative_mlr_centered$eu_position - legislative_mlr_centered$cluster_mean_eu_position
 
 # lrgen
-
 ## Calculating the cluster-specific mean of lrgen
 cluster_mean_lrgen <- data.frame(tapply(legislative_mlr_centered$lrgen, legislative_mlr_centered$vote_id_unique, mean))
 
@@ -74,7 +68,6 @@ legislative_mlr_centered <- merge(legislative_mlr_centered, cluster_mean_lrgen, 
 legislative_mlr_centered$lrgen_cmc <- legislative_mlr_centered$lrgen - legislative_mlr_centered$cluster_mean_lrgen
 
 # galtan
-
 ## Calculating the cluster-specific mean of galtan
 cluster_mean_galtan <- data.frame(tapply(legislative_mlr_centered$galtan, legislative_mlr_centered$vote_id_unique, mean))
 
@@ -91,7 +84,6 @@ legislative_mlr_centered <- merge(legislative_mlr_centered, cluster_mean_galtan,
 legislative_mlr_centered$galtan_cmc <- legislative_mlr_centered$galtan - legislative_mlr_centered$cluster_mean_galtan
 
 # glmmTMB for eu_position
-library(glmmTMB)
 eu_position_glmmtmb <- glmmTMB(true_vote_eu_position ~ 
                             lrgen_cmc * (environment_only + procedure + final_vote) +
                             eu_position_cmc * (environment_only + procedure + final_vote) +
@@ -106,7 +98,6 @@ eu_position_glmmtmb <- glmmTMB(true_vote_eu_position ~
 
 check_collinearity(eu_position_glmmtmb)
 kappa(model.matrix(eu_position_glmmtmb))
-cor(legislative_mlr_centered[, c("lrgen_cmc", "eu_position_cmc", "galtan_cmc")])
 
 #NO MEAN YES FINAL VOTE----
 # Define the extreme values for eu_position_cmc (eu_position_ep7_environment)
