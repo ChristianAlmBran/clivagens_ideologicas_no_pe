@@ -1,46 +1,41 @@
+# Loading the packages
 pacman::p_load(brms, tidyverse, performance)
 
+# Loading the df
 df_mlr <- read.csv('df_mlr.csv')
 
 # Verifying the df
 head(df_mlr)
 str(df_mlr)
 
-# Only keeping legislative votes 
+# Only keeping legislative and EP9 votes 
 ## copying the df and filtering
 legislative_mlr <- df_mlr %>%
   filter(leg.non.leg.bud == 'legislative' & parliamentary_term == 'EP9')
-# IF YOU EXCLUDE ONLY THE PARLIAMENTARY TERM YOU DONT GET A MULTICOLINEARITY PROBLEM
-#legislative_mlr <- df_mlr
 
 ## removing old df
 rm(df_mlr)
 
-sampled_df <- legislative_mlr
 # mlr
-
 # Converting necessary columns to appropriate types with lables and levels
-sampled_df$procedure <- factor(sampled_df$procedure, levels = c('first_reading', 'late_reading'), labels = c('first_reading', 'late_reading'))
+legislative_mlr$procedure <- factor(legislative_mlr$procedure, levels = c('first_reading', 'late_reading'), labels = c('first_reading', 'late_reading'))
 
-sampled_df$final_vote <- factor(sampled_df$final_vote, levels = c('No', 'Yes'), labels = c('No', 'Yes'))
+legislative_mlr$final_vote <- factor(legislative_mlr$final_vote, levels = c('No', 'Yes'), labels = c('No', 'Yes'))
 
-sampled_df$environment_only <- factor(sampled_df$environment_only, levels = c('Non-environment', 'Environment'), labels = c('Non-environment', 'Environment'))
+legislative_mlr$environment_only <- factor(legislative_mlr$environment_only, levels = c('Non-environment', 'Environment'), labels = c('Non-environment', 'Environment'))
 
-sampled_df$vote_id_unique <- factor(sampled_df$vote_id_unique)
+legislative_mlr$vote_id_unique <- factor(legislative_mlr$vote_id_unique)
 
-sampled_df$mep_unique <- factor(sampled_df$mep_unique)
-
-#sampled_df$leg.non.leg.bud <- factor(sampled_df$leg.non.leg.bud, levels = c('budgetary', 'legislative', 'non_legislative'), labels = c('budgetary', 'legislative', 'non_legislative'))
+legislative_mlr$mep_unique <- factor(legislative_mlr$mep_unique)
 
 # Centering the predictors
 ## Copying the df
-legislative_mlr_centered <- sampled_df
+legislative_mlr_centered <- legislative_mlr
 
 ## removing old df
 rm(legislative_mlr)
 
 # eu_position
-
 ## Calculating the cluster-specific mean of eu_position
 cluster_mean_eu_position <- data.frame(tapply(legislative_mlr_centered$eu_position, legislative_mlr_centered$vote_id_unique, mean))
 
@@ -57,7 +52,6 @@ legislative_mlr_centered <- merge(legislative_mlr_centered, cluster_mean_eu_posi
 legislative_mlr_centered$eu_position_cmc <- legislative_mlr_centered$eu_position - legislative_mlr_centered$cluster_mean_eu_position
 
 # lrgen
-
 ## Calculating the cluster-specific mean of lrgen
 cluster_mean_lrgen <- data.frame(tapply(legislative_mlr_centered$lrgen, legislative_mlr_centered$vote_id_unique, mean))
 
@@ -74,7 +68,6 @@ legislative_mlr_centered <- merge(legislative_mlr_centered, cluster_mean_lrgen, 
 legislative_mlr_centered$lrgen_cmc <- legislative_mlr_centered$lrgen - legislative_mlr_centered$cluster_mean_lrgen
 
 # galtan
-
 ## Calculating the cluster-specific mean of galtan
 cluster_mean_galtan <- data.frame(tapply(legislative_mlr_centered$galtan, legislative_mlr_centered$vote_id_unique, mean))
 
@@ -91,30 +84,29 @@ legislative_mlr_centered <- merge(legislative_mlr_centered, cluster_mean_galtan,
 legislative_mlr_centered$galtan_cmc <- legislative_mlr_centered$galtan - legislative_mlr_centered$cluster_mean_galtan
 
 # Step 1 - Building the empty model
-## Remember to create the sample df
 ## eu_position
 model_empty_eu <- glmer(true_vote_eu_position ~ (1 | mep_unique) + (1 | vote_id_unique), data = legislative_mlr_centered, family = 'binomial')
 summary(model_empty_eu)
 var_eu_mep <- model_empty_eu@theta[1]^2
 var_eu_vote <- model_empty_eu@theta[2]^2
-icc_eu_vote <- var_eu_vote / (var_eu_mep + var_eu_vote + (3.14159^2/3))
-icc_eu_mep <- var_eu_mep / (var_eu_mep + var_eu_vote + (3.14159^2/3))
+icc_eu_vote_ep9 <- var_eu_vote / (var_eu_mep + var_eu_vote + (3.14159^2/3))
+icc_eu_mep_ep9 <- var_eu_mep / (var_eu_mep + var_eu_vote + (3.14159^2/3))
 
 ## lrgen
 model_empty_lrgen <- glmer(true_vote_lrgen ~ (1 | mep_unique) + (1 | vote_id_unique), data = legislative_mlr_centered, family = 'binomial')
 summary(model_empty_lrgen)
 var_lrgen_mep <- model_empty_lrgen@theta[1]^2
 var_lrgen_vote <- model_empty_lrgen@theta[2]^2
-icc_lrgen_vote <- var_lrgen_vote / (var_lrgen_mep + var_lrgen_vote + (3.14159^2/3))
-icc_lrgen_mep <- var_lrgen_mep / (var_lrgen_mep + var_lrgen_vote + (3.14159^2/3))
+icc_lrgen_vote_ep9 <- var_lrgen_vote / (var_lrgen_mep + var_lrgen_vote + (3.14159^2/3))
+icc_lrgen_mep_ep9 <- var_lrgen_mep / (var_lrgen_mep + var_lrgen_vote + (3.14159^2/3))
 
 ## galtan
 model_empty_galtan <- glmer(true_vote_galtan ~ (1 | mep_unique) + (1 | vote_id_unique), data = legislative_mlr_centered, family = 'binomial')
 summary(model_empty_galtan)
 var_galtan_mep <- model_empty_galtan@theta[1]^2
 var_galtan_vote <- model_empty_galtan@theta[2]^2
-icc_galtan_vote <- var_galtan_vote / (var_galtan_mep + var_galtan_vote + (3.14159^2/3))
-icc_galtan_mep <- var_galtan_mep / (var_galtan_mep + var_galtan_vote + (3.14159^2/3))
+icc_galtan_vote_ep9 <- var_galtan_vote / (var_galtan_mep + var_galtan_vote + (3.14159^2/3))
+icc_galtan_mep_ep9 <- var_galtan_mep / (var_galtan_mep + var_galtan_vote + (3.14159^2/3))
 
 # Step 2 - Building the intermediate models
 ## Creating the formulas - CIM
